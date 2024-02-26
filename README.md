@@ -62,5 +62,5 @@ Can be found in [RELEASE_NOTES](RELEASE_NOTES.md).
 Please, follow [Code of Conduct](CODE_OF_CONDUCT.md) page.
 
 #### Also if you're interesting - see my other repositories
-*   [Visual](https://github.com/testoncis/visual) - Textual and Visual Comparison Of Images
-*   [Keep-Alive](https://github.com/testoncis/keepalive) - Keeps the device awake (stops from sleeping) 
+*   [Visual](https://visual.testonics.in/) - Textual and Visual Comparison Of Images
+*   [Keep-Alive](https://keepalive.testonics.in/) - Keeps the device awake (stops from sleeping) 
