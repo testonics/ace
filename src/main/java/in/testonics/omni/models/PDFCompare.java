@@ -1,14 +1,20 @@
 package in.testonics.omni.models;
 
 import in.testonics.omni.utils.FileUtils;
+import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageTree;
+import org.apache.pdfbox.pdmodel.PDResources;
+import org.apache.pdfbox.pdmodel.graphics.PDXObject;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -17,6 +23,7 @@ public class PDFCompare extends FileUtils {
 
     private boolean ENABLE_FONT_VALIDATION = false;
     private boolean ENABLE_FONT_SIZE_VALIDATION = false;
+    private boolean FETCH_IMAGES = false;
 
     public JSONObject compare(String pathOfFile1, String pathOfFile2, int pageNumber) throws Exception {
         return compare(new File(pathOfFile1),new File(pathOfFile2),pageNumber);
@@ -136,6 +143,7 @@ public class PDFCompare extends FileUtils {
 
     public String getFileText(File pdfFile, int pageNumber) throws Exception{
         try (PDDocument pdf = PDDocument.load(pdfFile)) {
+            getImages(pdf,pageNumber);
             //Overwritten protected method to get font and size of the text
             PDFTextStripper pdfStripper = new PDFTextStripper() {
                 String prevBaseFont = "";
@@ -174,9 +182,26 @@ public class PDFCompare extends FileUtils {
                 pdfStripper.setStartPage(pageNumber);
                 pdfStripper.setEndPage(pageNumber);
             }
+
             return pdfStripper.getText(pdf);
         }
 
+    }
+
+    public void getImages(PDDocument pdfDocument, int pageNumber) throws Exception{
+        if (FETCH_IMAGES){
+            System.out.println("Extracting the image from the PDF at page number : " + pageNumber);
+            PDPage page = pdfDocument.getPage(pageNumber-1);
+            PDResources pdResources = page.getResources();
+
+            for (COSName c : pdResources.getXObjectNames()) {
+                if (pdResources.isImageXObject(c)){
+                    PDXObject o = pdResources.getXObject(c);
+                    File file = new File(".//target//" + System.nanoTime() + ".png");
+                    ImageIO.write(((PDImageXObject) o).getImage(), "png", file);
+                }
+            }
+        }
     }
 
     public PDFCompare setEnableFontValidation(boolean enableFontValidationFlag){
@@ -187,4 +212,9 @@ public class PDFCompare extends FileUtils {
         this.ENABLE_FONT_SIZE_VALIDATION = enableFontSizeValidationFlag;
         return this;
     }
+    public PDFCompare setFetchImagesFlag(boolean fetchImagesFlag){
+        this.FETCH_IMAGES = fetchImagesFlag;
+        return this;
+    }
+
 }

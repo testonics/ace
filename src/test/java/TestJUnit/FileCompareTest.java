@@ -52,7 +52,7 @@ public class FileCompareTest {
         System.out.println("Extracting the text");
         pdfCompare.setEnableFontValidation(true);
         pdfCompare.setEnableFontSizeValidation(true);
-
+        pdfCompare.setFetchImagesFlag(true);
         String text = pdfCompare.getFileText(path + "PDF-File-Sample_150kB.pdf",1);
         System.out.println("Extracted Text from page 1 :" + text);
     }
