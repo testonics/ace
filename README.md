@@ -8,11 +8,11 @@ Compares & extracts the text from given PDF(s)
 ## Configuration
 Below configurations can be updated based on your needs.
 
-| *Property* | *Description*                                                             |
-| --- |---------------------------------------------------------------------------|
-| `ENABLE_FONT_VALIDATION` | Enables the font name validation if true. By detault false                |
-| `ENABLE_FONT_SIZE_VALIDATION` | Enables the font size validation if true. By detault false                |
-| `ENABLE_BOLD_ITALIC_VALIDATION` | Enables the font style (Italic/Bold) validation if true. By detault false |
+| *Property* | *Description*                                              |
+| --- |------------------------------------------------------------|
+| `ENABLE_FONT_VALIDATION` | Enables the font name validation if true. By detault false |
+| `ENABLE_FONT_SIZE_VALIDATION` | Enables the font size validation if true. By detault false |
+| `FETCH_IMAGES` | Extracts the images from PDF if True. By default false     |
 
 ## Usage
 
@@ -21,12 +21,12 @@ Below configurations can be updated based on your needs.
 <dependency>
     <groupId>in.testonics.omni</groupId>
     <artifactId>ace</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 #### Gradle
 ```groovy
-compile 'in.testonics.omni:ace:1.0.0'
+compile 'in.testonics.omni:ace:1.0.1'
 ```
 
 #### Compares the 2 given PDFs
