@@ -1,0 +1,22 @@
+{
+  "Mismatches": [
+    {
+      "Page#": 1,
+      "PDF 1 Text": "JSON is a light-weight, language independent, data interchange format. See \r",
+      "PDF 2 Text": "JSON is a light-weight, [16.0]language independent[14.0], data interchange format. See \r",
+      "Line#": 9
+    },
+    {
+      "Page#": 1,
+      "PDF 1 Text": "This is a reference implementation. There are a large number of JSON packages in Java. Perhaps \r",
+      "PDF 2 Text": "This is a reference implementation. There are a small number of JSON packages in Java. Perhaps \r",
+      "Line#": 12
+    },
+    {
+      "Page#": 1,
+      "PDF 1 Text": "someday the Java community will standardize on one. Until then, choose carefully. \r",
+      "PDF 2 Text": "someday the [CIDFont+F3]Java community[CIDFont+F1] will standardize on one. Until then, choose carefully. \r",
+      "Line#": 13
+    }
+  ]
+}

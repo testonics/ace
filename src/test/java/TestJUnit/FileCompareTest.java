@@ -43,15 +43,26 @@ public class FileCompareTest {
         System.out.println("PDF Font, Size, Type and Text Mismatch validation");
         pdfCompare.setEnableFontValidation(true);
         pdfCompare.setEnableFontSizeValidation(true);
-        pdfCompare.setBoldItalicValidation(true);
-        JSONObject jsonObject = pdfCompare.compare("PDF3.pdf","PDF5.pdf",1);
+        JSONObject jsonObject = pdfCompare.compare(path + "PDF3.pdf",path + "PDF5.pdf",1);
         System.out.println(jsonObject);
     }
 
     @Test
     public void ExtractText() throws Exception {
         System.out.println("Extracting the text");
-        String text = pdfCompare.getFileText("PDF3.pdf",1);
+        pdfCompare.setEnableFontValidation(true);
+        pdfCompare.setEnableFontSizeValidation(true);
+
+        String text = pdfCompare.getFileText(path + "PDF-File-Sample_150kB.pdf",1);
         System.out.println("Extracted Text from page 1 :" + text);
+    }
+
+    @Test
+    public void CompareFolders() throws Exception {
+        System.out.println("Comparing all the PDFs in the folder with PDF Font, Size, Type and Text Mismatch validation");
+        pdfCompare.setEnableFontValidation(true);
+        pdfCompare.setEnableFontSizeValidation(true);
+        JSONObject jsonObject = pdfCompare.compare(path,path);
+        System.out.println(jsonObject);
     }
 }

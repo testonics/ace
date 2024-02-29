@@ -6,6 +6,7 @@ import org.apache.pdfbox.pdmodel.PDPageTree;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -16,14 +17,41 @@ public class PDFCompare extends FileUtils {
 
     private boolean ENABLE_FONT_VALIDATION = false;
     private boolean ENABLE_FONT_SIZE_VALIDATION = false;
-    private boolean ENABLE_BOLD_ITALIC_VALIDATION = false;
 
     public JSONObject compare(String pathOfFile1, String pathOfFile2, int pageNumber) throws Exception {
         return compare(new File(pathOfFile1),new File(pathOfFile2),pageNumber);
     }
 
-    public JSONObject compare(String pathOfFile1, String pathOfFile2) throws Exception {
-        return compare(new File(pathOfFile1),new File(pathOfFile2));
+    //Compares all the files in a folder or single file
+    public JSONObject compare(String fileOrFolderPath1, String fileOrFolderPath2) throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        File file1 = new File(fileOrFolderPath1);
+        File file2 = new File(fileOrFolderPath2);
+
+        if (file1.isDirectory() && file2.isDirectory()) {
+            File[] files = file1.listFiles();
+            assert files != null;
+            for (File file : files) {
+                if (file.isFile()) {
+                    JSONObject jsonObject1 = new JSONObject();
+                    String fileName = file.getName();
+                    File FileToCompare1 = new File(fileOrFolderPath1 + "//" + fileName);
+                    File FileToCompare2 = new File(fileOrFolderPath2 + "//" + fileName);
+                    if (!FileToCompare2.exists())
+                        jsonObject1.put("Error",FileToCompare2.getAbsoluteFile() + " file not found");
+                    else
+                        jsonObject1 = compare(FileToCompare1 ,FileToCompare2);
+                    try {
+                        jsonObject.put(file.getName(), jsonObject1.get("Error"));
+                    }catch (JSONException jsonException){
+                        jsonObject.put(file.getName(), jsonObject1.get("Mismatches"));
+                    }
+                }
+            }
+        }else{
+            return compare(file1,file2);
+        }
+        return jsonObject;
     }
 
     public JSONObject compare(File pdfFile1, File pdfFile2) throws Exception {
@@ -55,100 +83,6 @@ public class PDFCompare extends FileUtils {
                 return jsonObject;
             }
 
-            //Overwritten protected method to get font and size of the text
-            PDFTextStripper pdfStripper1 = new PDFTextStripper() {
-                String prevBaseFont = "";
-                String prevBaseFontSize = "";
-                boolean preItalic = false;
-                boolean preBold = false;
-                protected void writeString(String text, List<TextPosition> textPositions) throws IOException {
-                    StringBuilder builder = new StringBuilder();
-
-                    for (TextPosition position : textPositions) {
-
-                        //Base Font Validation
-                        if (ENABLE_FONT_VALIDATION){
-                            String baseFont = position.getFont().getFontDescriptor().getFontName();
-                            if (baseFont != null && !baseFont.equals(prevBaseFont)) {
-                                builder.append('[').append(baseFont).append(']');
-                                prevBaseFont = baseFont;
-                            }
-                        }
-
-                        //Font Size Validation
-                        if (ENABLE_FONT_SIZE_VALIDATION){
-                            String baseFontSize = String.valueOf(position.getFontSizeInPt());
-                            if (!baseFontSize.equals(prevBaseFontSize)) {
-                                builder.append('[').append(baseFontSize).append(']');
-                                prevBaseFontSize = baseFontSize;
-                            }
-                        }
-
-                        //Bold Italic Validation
-                        if (ENABLE_BOLD_ITALIC_VALIDATION){
-                            boolean italic = position.getFont().getFontDescriptor().isItalic();
-                            boolean bold = position.getFont().getFontDescriptor().isForceBold();
-                            if (italic != preItalic || bold != preBold) {
-                                builder.append('[').append("Italic/Bold").append(']');
-                                preItalic = italic;
-                                preBold = bold;
-                            }
-                        }
-
-                        builder.append(position.getUnicode());
-                    }
-                    writeString(builder.toString());
-                }
-            };
-
-
-            //Overwritten protected method to get font and size of the text
-            PDFTextStripper pdfStripper2 = new PDFTextStripper() {
-                String prevBaseFont = "";
-                String prevBaseFontSize = "";
-                boolean preItalic = false;
-                boolean preBold = false;
-
-                protected void writeString(String text, List<TextPosition> textPositions) throws IOException {
-                    StringBuilder builder = new StringBuilder();
-
-                    for (TextPosition position : textPositions) {
-
-                        //Font Validation
-                        if (ENABLE_FONT_VALIDATION){
-                            String baseFont = position.getFont().getFontDescriptor().getFontName();
-                            if (baseFont != null && !baseFont.equals(prevBaseFont)) {
-                                builder.append('[').append(baseFont).append(']');
-                                prevBaseFont = baseFont;
-                            }
-                        }
-
-                        //Font Size validation
-                        if (ENABLE_FONT_SIZE_VALIDATION){
-                            String baseFontSize = String.valueOf(position.getFontSizeInPt());
-                            if (!baseFontSize.equals(prevBaseFontSize)) {
-                                builder.append('[').append(baseFontSize).append(']');
-                                prevBaseFontSize = baseFontSize;
-                            }
-                        }
-
-                        //Bold Italic Validation
-                        if (ENABLE_BOLD_ITALIC_VALIDATION){
-                            boolean italic = position.getFont().getFontDescriptor().isItalic();
-                            boolean bold = position.getFont().getFontDescriptor().isForceBold();
-                            if (italic != preItalic || bold != preBold) {
-                                builder.append('[').append("Italic/Bold").append(']');
-                                preItalic = italic;
-                                preBold = bold;
-                            }
-                        }
-
-                        builder.append(position.getUnicode());
-                    }
-                    writeString(builder.toString());
-                }
-            };
-
             //To validate only a specific page in PDF
             if (!(pageNumber==0)) numberOfPages = 1;
 
@@ -157,12 +91,8 @@ public class PDFCompare extends FileUtils {
             for (int i = 0; i < numberOfPages; i++) {
                 int pageNumberToValidate = (i+1);
                 if (!(pageNumber==0)) pageNumberToValidate = pageNumber;
-                pdfStripper1.setStartPage(pageNumberToValidate);
-                pdfStripper1.setEndPage(pageNumberToValidate);
-                pdfStripper2.setStartPage(pageNumberToValidate);
-                pdfStripper2.setEndPage(pageNumberToValidate);
-                String pdf1PageText = pdfStripper1.getText(pdf1);
-                String pdf2PageText = pdfStripper2.getText(pdf2);
+                String pdf1PageText = getFileText(pdfFile1,pageNumberToValidate);
+                String pdf2PageText = getFileText(pdfFile2,pageNumberToValidate);
                 String[] pdf1PageTextLines = pdf1PageText.split("\n");
                 String[] pdf2PageTextLines = pdf2PageText.split("\n");
 
@@ -205,13 +135,48 @@ public class PDFCompare extends FileUtils {
     }
 
     public String getFileText(File pdfFile, int pageNumber) throws Exception{
-        PDDocument pdf = PDDocument.load(pdfFile);
-        PDFTextStripper pdfStripper = new PDFTextStripper();
-        if (pageNumber != 0){
-            pdfStripper.setStartPage(pageNumber);
-            pdfStripper.setEndPage(pageNumber);
+        try (PDDocument pdf = PDDocument.load(pdfFile)) {
+            //Overwritten protected method to get font and size of the text
+            PDFTextStripper pdfStripper = new PDFTextStripper() {
+                String prevBaseFont = "";
+                String prevBaseFontSize = "";
+
+                protected void writeString(String text, List<TextPosition> textPositions) throws IOException {
+                    StringBuilder builder = new StringBuilder();
+
+                    for (TextPosition position : textPositions) {
+
+                        //Base Font Validation
+                        if (ENABLE_FONT_VALIDATION) {
+                            String baseFont = position.getFont().getFontDescriptor().getFontName();
+                            if (baseFont != null && !baseFont.equals(prevBaseFont)) {
+                                builder.append('[').append(baseFont).append(']');
+                                prevBaseFont = baseFont;
+                            }
+                        }
+
+                        //Font Size Validation
+                        if (ENABLE_FONT_SIZE_VALIDATION) {
+                            String baseFontSize = String.valueOf(position.getFontSizeInPt());
+                            if (!baseFontSize.equals(prevBaseFontSize)) {
+                                builder.append('[').append(baseFontSize).append(']');
+                                prevBaseFontSize = baseFontSize;
+                            }
+                        }
+
+                        builder.append(position.getUnicode());
+                    }
+                    writeString(builder.toString());
+                }
+            };
+
+            if (pageNumber != 0) {
+                pdfStripper.setStartPage(pageNumber);
+                pdfStripper.setEndPage(pageNumber);
+            }
+            return pdfStripper.getText(pdf);
         }
-        return pdfStripper.getText(pdf);
+
     }
 
     public PDFCompare setEnableFontValidation(boolean enableFontValidationFlag){
@@ -220,10 +185,6 @@ public class PDFCompare extends FileUtils {
     }
     public PDFCompare setEnableFontSizeValidation(boolean enableFontSizeValidationFlag){
         this.ENABLE_FONT_SIZE_VALIDATION = enableFontSizeValidationFlag;
-        return this;
-    }
-    public PDFCompare setBoldItalicValidation(boolean enableBoldItalicValidationFlag){
-        this.ENABLE_BOLD_ITALIC_VALIDATION = enableBoldItalicValidationFlag;
         return this;
     }
 }
