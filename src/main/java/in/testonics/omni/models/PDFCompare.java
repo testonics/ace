@@ -188,6 +188,12 @@ public class PDFCompare extends FileUtils {
 
     }
 
+    public void getImages(File pdfFile, int pageNumber) throws Exception{
+        try (PDDocument pdf = PDDocument.load(pdfFile)) {
+            getImages(pdf,pageNumber);
+        }
+    }
+
     public void getImages(PDDocument pdfDocument, int pageNumber) throws Exception{
         if (FETCH_IMAGES){
             System.out.println("Extracting the image from the PDF at page number : " + pageNumber);
