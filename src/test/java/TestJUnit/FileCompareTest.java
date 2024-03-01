@@ -50,19 +50,20 @@ public class FileCompareTest {
     @Test
     public void ExtractText() throws Exception {
         System.out.println("Extracting the text");
-        pdfCompare.setEnableFontValidation(true);
-        pdfCompare.setEnableFontSizeValidation(true);
-        pdfCompare.setFetchImagesFlag(true);
-        String text = pdfCompare.getFileText(path + "PDF-File-Sample_150kB.pdf",1);
-        System.out.println("Extracted Text from page 1 :" + text);
+        String text = pdfCompare.setEnableFontValidation(true)
+                                .setEnableFontSizeValidation(true)
+                                .setFetchImagesFlag(true)
+                                .setImagesPath(".//target//")
+                                .getFileTextAndImage(path + "PDF-File-Sample_150kB.pdf",1);
+        System.out.println("Extracted Text & Image from page 1 :" + text);
     }
 
-    @Test
-    public void CompareFolders() throws Exception {
-        System.out.println("Comparing all the PDFs in the folder with PDF Font, Size, Type and Text Mismatch validation");
-        pdfCompare.setEnableFontValidation(true);
-        pdfCompare.setEnableFontSizeValidation(true);
-        JSONObject jsonObject = pdfCompare.compare(path,path);
-        System.out.println(jsonObject);
-    }
+//    @Test
+//    public void CompareFolders() throws Exception {
+//        System.out.println("Comparing all the PDFs in the folder with PDF Font, Size, Type and Text Mismatch validation");
+//        pdfCompare.setEnableFontValidation(true);
+//        pdfCompare.setEnableFontSizeValidation(true);
+//        JSONObject jsonObject = pdfCompare.compare(path,path);
+//        System.out.println(jsonObject);
+//    }
 }

@@ -1,18 +1,19 @@
 ## ACE
 Compares & extracts the text from given PDF(s)
 
-*   Extract the text from a given PDF as a whole or a particular page
+*   Extract the text & image from a given PDF as a whole or a particular page
 
-*   Compares the 2 given PDFs by text, font style, font size, font name
+*   Compares the 2 given PDFs by text, font style, font size, font name, image
 
 ## Configuration
 Below configurations can be updated based on your needs.
 
-| *Property* | *Description*                                              |
-| --- |------------------------------------------------------------|
-| `ENABLE_FONT_VALIDATION` | Enables the font name validation if true. By detault false |
-| `ENABLE_FONT_SIZE_VALIDATION` | Enables the font size validation if true. By detault false |
-| `FETCH_IMAGES` | Extracts the images from PDF if True. By default false     |
+| *Property*                    | *Description*                                                          |
+|-------------------------------|------------------------------------------------------------------------|
+| `ENABLE_FONT_VALIDATION`      | Enables the font name validation if true. By default false             |
+| `ENABLE_FONT_SIZE_VALIDATION` | Enables the font size validation if true. By default false             |
+| `FETCH_IMAGES`                | Extracts the images from PDF if True. By default false                 |
+| `IMAGE_PATH`                  | Extracts and Saves the image at IMAGE_PATH. By default ./target folder |
 
 ## Usage
 
@@ -21,12 +22,12 @@ Below configurations can be updated based on your needs.
 <dependency>
     <groupId>in.testonics.omni</groupId>
     <artifactId>ace</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 #### Gradle
 ```groovy
-compile 'in.testonics.omni:ace:1.0.1'
+compile 'in.testonics.omni:ace:1.0.2'
 ```
 
 #### Compares the 2 given PDFs
@@ -50,6 +51,13 @@ compile 'in.testonics.omni:ace:1.0.1'
         }
 ```
 
+
+#### Extract the image from a given PDF
+```java
+        pdfCompare.setFetchImagesFlag(true);
+        pdfCompare.setImagesPath(".//target//");
+        JSONObject jsonObject = pdfCompare.getImages("PDF-File-Sample_150kB.pdf",1);
+```
 
 ## License
 This project is Apache License 2.0 - see the [LICENSE](LICENSE) file for details

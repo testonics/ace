@@ -24,6 +24,7 @@ public class PDFCompare extends FileUtils {
     private boolean ENABLE_FONT_VALIDATION = false;
     private boolean ENABLE_FONT_SIZE_VALIDATION = false;
     private boolean FETCH_IMAGES = false;
+    private String IMAGES_PATH = ".//target//";
 
     public JSONObject compare(String pathOfFile1, String pathOfFile2, int pageNumber) throws Exception {
         return compare(new File(pathOfFile1),new File(pathOfFile2),pageNumber);
@@ -141,9 +142,21 @@ public class PDFCompare extends FileUtils {
         return getFileText(new File(pdfFile),pageNumber);
     }
 
+    public String getFileTextAndImage(String pdfFile, int pageNumber) throws Exception{
+        return getFileTextAndImage(new File(pdfFile), pageNumber);
+    }
+
+    public String getFileTextAndImage(File pdfFile, int pageNumber) throws Exception{
+        //Fetches the images if FETCH_IMAGE flag is true
+        String images = getImages(pdfFile,pageNumber).toString();
+        String text = getFileText(pdfFile,pageNumber);
+        return images + "\n" + text;
+    }
+
     public String getFileText(File pdfFile, int pageNumber) throws Exception{
+
         try (PDDocument pdf = PDDocument.load(pdfFile)) {
-            getImages(pdf,pageNumber);
+
             //Overwritten protected method to get font and size of the text
             PDFTextStripper pdfStripper = new PDFTextStripper() {
                 String prevBaseFont = "";
@@ -188,26 +201,30 @@ public class PDFCompare extends FileUtils {
 
     }
 
-    public void getImages(File pdfFile, int pageNumber) throws Exception{
-        try (PDDocument pdf = PDDocument.load(pdfFile)) {
-            getImages(pdf,pageNumber);
-        }
-    }
+    public JSONObject getImages(File pdfFile, int pageNumber) throws Exception{
+        JSONObject jsonObject = new JSONObject();
 
-    public void getImages(PDDocument pdfDocument, int pageNumber) throws Exception{
-        if (FETCH_IMAGES){
+        if (!FETCH_IMAGES)
+            return jsonObject;
+
+        try (PDDocument pdfDocument = PDDocument.load(pdfFile)) {
             System.out.println("Extracting the image from the PDF at page number : " + pageNumber);
-            PDPage page = pdfDocument.getPage(pageNumber-1);
+            PDPage page = pdfDocument.getPage(pageNumber - 1);
             PDResources pdResources = page.getResources();
 
+            int imageCounter = 1;
             for (COSName c : pdResources.getXObjectNames()) {
-                if (pdResources.isImageXObject(c)){
+                if (pdResources.isImageXObject(c)) {
                     PDXObject o = pdResources.getXObject(c);
-                    File file = new File(".//target//" + System.nanoTime() + ".png");
+                    String imageFilePath = IMAGES_PATH + System.nanoTime() + ".png";
+                    jsonObject.put("Image" + imageCounter,imageFilePath);
+                    File file = new File(imageFilePath);
                     ImageIO.write(((PDImageXObject) o).getImage(), "png", file);
+                    imageCounter++;
                 }
             }
         }
+        return jsonObject;
     }
 
     public PDFCompare setEnableFontValidation(boolean enableFontValidationFlag){
@@ -218,9 +235,14 @@ public class PDFCompare extends FileUtils {
         this.ENABLE_FONT_SIZE_VALIDATION = enableFontSizeValidationFlag;
         return this;
     }
+
     public PDFCompare setFetchImagesFlag(boolean fetchImagesFlag){
         this.FETCH_IMAGES = fetchImagesFlag;
         return this;
     }
 
+    public PDFCompare setImagesPath(String imageFolderPath){
+        this.IMAGES_PATH = imageFolderPath;
+        return this;
+    }
 }
