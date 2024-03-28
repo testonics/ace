@@ -51,12 +51,25 @@ compile 'in.testonics.omni:ace:1.0.2'
         }
 ```
 
-
 #### Extract the image from a given PDF
 ```java
         pdfCompare.setFetchImagesFlag(true);
         pdfCompare.setImagesPath(".//target//");
         JSONObject jsonObject = pdfCompare.getImages("PDF-File-Sample_150kB.pdf",1);
+```
+
+#### Ignore certain text based on RegEx
+```java
+        String path = ".\\src\\test\\resources\\TestData\\";
+        String pathExpectedPatterns = path + "ExpectedPatterns.json";
+        String pdf1 = path + "PDF3.pdf";
+        String pdf2 = path + "PDF5.pdf";
+        Map<String, List<String>> mapExpectedPatterns = pdfCompare.getExpectedPatterns(pathExpectedPatterns,new File(pdf1).getName());
+        pdfCompare.setEnableFontValidation(true);
+        pdfCompare.setEnableFontSizeValidation(true);
+        pdfCompare.setExpectedPatterns(mapExpectedPatterns);
+        JSONObject jsonObject = pdfCompare.compare(pdf1,pdf2,1);
+        System.out.println(jsonObject);
 ```
 
 ## License

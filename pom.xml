@@ -6,11 +6,11 @@
 
     <groupId>in.testonics.omni</groupId>
     <artifactId>ace</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
 
     <!--Project Details-->
-    <name>Omni</name>
+    <name>ACE</name>
     <description>Automatic Comparator and Extractor Tool</description>
     <url>https://ace.testonics.in/</url>
 
